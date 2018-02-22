@@ -76,6 +76,11 @@ function ptt_save_post ( $post_id ) {
 		return;
 	}
 
+	// check capabilities
+	if ( ! current_user_can ( 'edit_post', $post_id ) ) {
+		return;
+	}
+
 	// @TODO: this code should go into a loop that checks and updates all taxonomies
 	// test with a hardcoded taxonomy for the MVP
 	$field = '_ptt-primary-category';
