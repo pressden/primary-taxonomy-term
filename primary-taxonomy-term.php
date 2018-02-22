@@ -64,11 +64,17 @@ function ptt_meta_box_callback ( $post ) {
 			<?php
 		}
 	}
+
+	// generate a nonce for this meta box
+	wp_nonce_field ( 'ptt_primary_terms', 'ptt_primary_terms_nonce' );
 }
 
 add_action ( 'save_post', 'ptt_save_post' );
 function ptt_save_post ( $post_id ) {
-	// @TODO: harden the code with nonce checks before saving
+	// check the nonce
+	if ( ! isset ( $_POST['ptt_primary_terms_nonce'] ) || ! wp_verify_nonce ( $_POST['ptt_primary_terms_nonce'], 'ptt_primary_terms' ) ) {
+		return;
+	}
 
 	// @TODO: this code should go into a loop that checks and updates all taxonomies
 	// test with a hardcoded taxonomy for the MVP
