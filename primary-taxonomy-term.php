@@ -39,17 +39,25 @@ function ptt_meta_box_callback ( $post ) {
 			$label = 'Primary ' . $taxonomy->labels->singular_name;
 			$field = '_ptt-primary-' . $taxonomy->name;
 			$terms = get_the_terms ( $post, $taxonomy->name );
+			$primary = get_post_meta ( $post->ID, $field, true );
 			?>
 
 			<label for="<?php echo $field; ?>"><?php echo $label; ?></label>
 			<select name="<?php echo $field; ?>" id="<?php echo $field; ?>">
 				<option value="">Select a <?php echo strtolower ( $label ); ?></option>
 
-				<?php foreach ( $terms as $term ): ?>
-					<?php // @TODO: pre-select the primary term if one is set ?>
-					<option value="<?php echo $term->term_id; ?>"><?php echo $term->name; ?></option>
-				<?php endforeach; ?>
-				<?php // @TODO: give JS control of the options to reflect real-time updates ?>
+				<?php
+				// @TODO: give JS control of the options to reflect real-time updates
+
+				foreach ( $terms as $term ) {
+					$selected = ( $primary == $term->term_id ) ? 'selected' : '';
+					?>
+
+					<option value="<?php echo $term->term_id; ?>" <?php echo $selected; ?>><?php echo $term->name; ?></option>
+
+					<?php
+				}
+				?>
 
 			</select>
 
