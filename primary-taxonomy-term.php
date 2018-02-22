@@ -16,7 +16,7 @@ function ptt_add_meta_boxes() {
 
 	// restrict PTT posts for MVP
 	// @TODO: extend PTT functionality to all post types
-	if ( $screen->post_type=='post' && $screen->id=='post' ) {
+	if ( 'post' === $screen->post_type && 'post' === $screen->id ) {
 		add_meta_box ( 'ptt-primary-terms', 'Primary Terms', ptt_meta_box_callback, null, 'side', 'core' );
 	}
 }
@@ -31,7 +31,7 @@ function ptt_meta_box_callback ( $post ) {
 
 		// restrict PTT categories for MVP
 		// @TODO: extend PTT functionality to all taxonomies
-		if ( 'category' == $taxonomy->name )
+		if ( 'category' === $taxonomy->name )
 		{
 			if ( ! $taxonomy->show_ui || false === $taxonomy->meta_box_cb )
 				continue;
@@ -50,7 +50,7 @@ function ptt_meta_box_callback ( $post ) {
 				// @TODO: give JS control of the options to reflect real-time updates
 
 				foreach ( $terms as $term ) {
-					$selected = ( $primary == $term->term_id ) ? 'selected' : '';
+					$selected = ( (integer) $primary === $term->term_id ) ? 'selected' : '';
 					?>
 
 					<option value="<?php echo $term->term_id; ?>" <?php echo $selected; ?>><?php echo $term->name; ?></option>
