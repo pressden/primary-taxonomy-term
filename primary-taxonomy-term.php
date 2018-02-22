@@ -65,3 +65,25 @@ function ptt_meta_box_callback ( $post ) {
 		}
 	}
 }
+
+add_action ( 'save_post', 'ptt_save_post' );
+function ptt_save_post ( $post_id ) {
+	// @TODO: harden the code with nonce checks before saving
+
+	// @TODO: this code should go into a loop that checks and updates all taxonomies
+	// test with a hardcoded taxonomy for the MVP
+	$field = '_ptt-primary-category';
+	if ( array_key_exists ( $field, $_POST ) ) {
+		// @TODO: update this check to work with all taxonomies
+		$valid_ids = array_values ( $_POST['post_category'] );
+
+		// validate the term id before saving it
+		if ( in_array ( $_POST[$field], $valid_ids ) ) {
+			update_post_meta ( $post_id, $field, $_POST[$field] );
+		}
+		// delete the existing value if it is no longer valid
+		else if ( ! in_array ( get_post_meta ( $post_id, $valid_ids ) ) ) {
+			delete_post_meta ( $post_id, $field );
+		}
+	}
+}
