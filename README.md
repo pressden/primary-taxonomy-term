@@ -19,7 +19,7 @@ The initial release will be a minimum viable product (MVP). Additional features 
 
 ## Frontend Use Cases
 - Query for related content based on primary term (MVP)
-- Add a custom class to primary content for targeting (MVP)
+- **DONE** ~~Add a custom class to primary content for targeting (MVP)~~
 - Option – Shortcode to embed primary related content in any post
 - Option – Widget to display primary related content in any sidebar
 
