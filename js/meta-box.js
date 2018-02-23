@@ -21,6 +21,7 @@ jQuery( document ).ready( function($) {
 		// @TODO: retain the 'selected' state of a primary term if it is readded
 		if( true === inputChecked ) {
 			primarySelect.append( $( '<option>', { value: inputValue, text: inputText } ) );
+			// @TODO: sort the options alphabetically after appending a new option
 		}
 		else {
 			$( '#_ptt-primary-category option[value="' + inputValue + '"]' ).remove();
