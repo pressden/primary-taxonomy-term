@@ -121,3 +121,39 @@ function ptt_primary_content_class ( $classes ) {
 
 	return $classes;
 }
+
+// move the primary term to the front of the list
+// @TODO: extend PTT functionality to all taxonomies
+add_filter ( 'the_category_list', 'ptt_sort_primary_term' );
+function ptt_sort_primary_term ( $categories ) {
+	global $post;
+
+	$primary_term_id = (integer) get_post_meta ( $post->ID, '_ptt-primary-category', true );
+
+	foreach ( $categories as $key => $category) {
+		if ( $primary_term_id === $category->term_id ) {
+			$matched_key = $key;
+		}
+	}
+
+	$categories = array( $matched_key => $categories[$matched_key] ) + $categories;
+
+	return $categories;
+}
+
+// add a custom class to the primary taxonomy term
+// @TODO: extend PTT functionality to all taxonomies
+add_filter ( 'the_category', 'ptt_primary_term_class' );
+function ptt_primary_term_class ( $category_list ) {
+	global $post;
+
+	// find an opening in the first anchor tag to inject a class attribute
+	// @TODO: This string manipulation method makes too many assumptions. Consider a more thorough method (perhaps parsing or regex)
+	$position = strpos ( $category_list, ' ' );
+
+	if ( $position !== false ) {
+		$category_list = substr_replace ( $category_list, ' class="ptt_primary_term" ', $position, 1 );
+	}
+
+	return $category_list;
+}
