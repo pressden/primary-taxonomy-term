@@ -3,18 +3,20 @@
 Plugin Name: Primary Taxonomy Term
 Plugin URI: https://github.com/pressden/primary-taxonomy-term
 Description: Primary Taxonomy Term adds the ability to specify a primary term for any taxonomy.
-Version: 0.3.0
+Version: 0.4.0
 Author: D.S. Webster
 Author URI: http://pressden.com/
 License: GPLv3
 Text Domain: primary-taxonomy-term
 */
 
+// enqueue the ptt admin scripts
 add_action ( 'admin_enqueue_scripts', 'ptt_enqueue_scripts' );
 function ptt_enqueue_scripts () {
 	wp_enqueue_script( 'ptt-meta-box', plugins_url( 'js/meta-box.js', __FILE__ ), array( 'jquery' ), '0.2.0', true );
 }
 
+// add the ptt meta box
 add_action ( 'add_meta_boxes', 'ptt_add_meta_boxes' );
 function ptt_add_meta_boxes() {
 	$screen = get_current_screen();
@@ -26,6 +28,7 @@ function ptt_add_meta_boxes() {
 	}
 }
 
+// ptt meta box callback
 function ptt_meta_box_callback ( $post ) {
 	global $post;
 
@@ -52,8 +55,6 @@ function ptt_meta_box_callback ( $post ) {
 				<option value="">Select a <?php echo strtolower ( $label ); ?></option>
 
 				<?php
-				// @TODO: give JS control of the options to reflect real-time updates
-
 				foreach ( $terms as $term ) {
 					$selected = ( (integer) $primary === $term->term_id ) ? 'selected' : '';
 					?>
@@ -74,6 +75,7 @@ function ptt_meta_box_callback ( $post ) {
 	wp_nonce_field ( 'ptt_primary_terms', 'ptt_primary_terms_nonce' );
 }
 
+// save the values from the ptt meta box
 add_action ( 'save_post', 'ptt_save_post' );
 function ptt_save_post ( $post_id ) {
 	// check the nonce
@@ -102,4 +104,90 @@ function ptt_save_post ( $post_id ) {
 			delete_post_meta ( $post_id, $field );
 		}
 	}
+}
+
+// add a custom class to all primary content in archives
+add_filter ( 'post_class', 'ptt_primary_content_class' );
+function ptt_primary_content_class ( $classes ) {
+	global $post;
+
+	// restrict PTT categories for MVP
+	// @TODO: extend PTT functionality to all taxonomies
+	if( is_archive() && get_queried_object_id() === (integer) get_post_meta( $post->ID, '_ptt-primary-category', true ) ) {
+		$classes[] = 'ptt-primary-content';
+	}
+
+	return $classes;
+}
+
+// move the primary term to the front of the list
+// @TODO: extend PTT functionality to all taxonomies
+add_filter ( 'the_category_list', 'ptt_sort_primary_term' );
+function ptt_sort_primary_term ( $categories ) {
+	global $post;
+
+	$primary_term_id = (integer) get_post_meta ( $post->ID, '_ptt-primary-category', true );
+
+	foreach ( $categories as $key => $category ) {
+		if ( $primary_term_id === $category->term_id ) {
+			$matched_key = $key;
+		}
+	}
+
+	$categories = array ( $matched_key => $categories[$matched_key] ) + $categories;
+
+	return $categories;
+}
+
+// add a custom class to the primary taxonomy term
+// @TODO: extend PTT functionality to all taxonomies
+add_filter ( 'the_category', 'ptt_primary_term_class' );
+function ptt_primary_term_class ( $category_list ) {
+	global $post;
+
+	$term_id = (integer) get_post_meta ( $post->ID, '_ptt-primary-category', true );
+	$term = get_term ( $term_id, 'category' );
+
+	/******************************************
+	 *
+	 * @NOTE: DOM Manipulation seems like overkill for such a small feature.
+	 * The previous solution relied on basic string manipulation and made too
+	 * many assumptions. More research may reveal a more direct solution for
+	 * manipulating the category list. If not a future version of WP almost
+	 * certainly will. See inline comments below to explain each step.
+	 *
+	 ******************************************/
+
+	$list = new DOMDocument();
+	$list->loadHTML ( $category_list );
+
+	// segment the DOM by anchors
+	$links = $list->getElementsByTagName ( 'a' );
+
+	// loop through each anchor
+	foreach ( $links as $link ) {
+		// locate the primary term anchor
+		if ( strtolower ( $term->name ) === strtolower ( $link->nodeValue ) ) {
+			$attributes = $link->attributes;
+
+			// loop through the existing attributes
+			foreach ( $attributes as $attribute ) {
+				$has_class = false;
+
+				// if a class attribute exists, append our class
+				if ( 'class' === $attribute->name ) {
+					$has_class = true;
+					$attribute->value .= ' ptt-primary-term';
+				}
+			}
+
+			// otherwise create class attribute from scratch
+			if ( false === $has_class ) {
+				$link->setAttribute ( 'class', 'ptt-primary-term' );
+			}
+		}
+	}
+
+	// return the updated category list
+	return $list->saveHTML();
 }
