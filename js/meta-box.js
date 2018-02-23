@@ -10,16 +10,16 @@ jQuery( document ).ready( function($) {
 		var primaryValue = primarySelect.val();
 
 		// warn the user about removing the primary term
-		if( primaryValue == inputValue ) {
+		if( primaryValue === inputValue ) {
 			var confirmation = confirm( 'You are about to remove a primary taxonomy term for this post. Are you sure you want to do this?' );
 		}
 
-		if( false == confirmation ) {
+		if( false === confirmation ) {
 			return false;
 		}
 
 		// @TODO: retain the 'selected' state of a primary term if it is readded
-		if( true == inputChecked ) {
+		if( true === inputChecked ) {
 			primarySelect.append( $( '<option>', { value: inputValue, text: inputText } ) );
 		}
 		else {
