@@ -55,8 +55,6 @@ function ptt_meta_box_callback ( $post ) {
 				<option value="">Select a <?php echo strtolower ( $label ); ?></option>
 
 				<?php
-				// @TODO: give JS control of the options to reflect real-time updates
-
 				foreach ( $terms as $term ) {
 					$selected = ( (integer) $primary === $term->term_id ) ? 'selected' : '';
 					?>
