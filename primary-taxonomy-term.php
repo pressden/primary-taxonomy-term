@@ -145,13 +145,49 @@ add_filter ( 'the_category', 'ptt_primary_term_class' );
 function ptt_primary_term_class ( $category_list ) {
 	global $post;
 
-	// find an opening in the first anchor tag to inject a class attribute
-	// @TODO: This string manipulation method makes too many assumptions. Consider a more thorough method (perhaps parsing or regex)
-	$position = strpos ( $category_list, ' ' );
+	$term_id = (integer) get_post_meta ( $post->ID, '_ptt-primary-category', true );
+	$term = get_term ( $term_id, 'category' );
 
-	if ( $position !== false ) {
-		$category_list = substr_replace ( $category_list, ' class="ptt_primary_term" ', $position, 1 );
+	/******************************************
+	 *
+	 * @NOTE: DOM Manipulation seems like overkill for such a small feature.
+	 * The previous solution relied on basic string manipulation and made too
+	 * many assumptions. More research may reveal a more direct solution for
+	 * manipulating the category list. If not a future version of WP almost
+	 * certainly will. See inline comments below to explain each step.
+	 *
+	 ******************************************/
+
+	$list = new DOMDocument();
+	$list->loadHTML ( $category_list );
+
+	// segment the DOM by anchors
+	$links = $list->getElementsByTagName ( 'a' );
+
+	// loop through each anchor
+	foreach ( $links as $link ) {
+		// locate the primary term anchor
+		if ( strtolower ( $term->name ) === strtolower ( $link->nodeValue ) ) {
+			$attributes = $link->attributes;
+
+			// loop through the existing attributes
+			foreach ( $attributes as $attribute ) {
+				$has_class = false;
+
+				// if a class attribute exists, append our class
+				if ( 'class' === $attribute->name ) {
+					$has_class = true;
+					$attribute->value .= ' ptt-primary-term';
+				}
+			}
+
+			// otherwise create class attribute from scratch
+			if ( false === $has_class ) {
+				$link->setAttribute ( 'class', 'ptt-primary-term' );
+			}
+		}
 	}
 
-	return $category_list;
+	// return the updated category list
+	return $list->saveHTML();
 }
