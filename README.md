@@ -9,13 +9,13 @@ The initial release will be a minimum viable product (MVP). Additional features 
 - Option – Checkbox to bubble primary content to top of archive pages
 
 ### Post Meta Controls
-- Populate primary term select box with selected terms via JS (MVP)
+- **DONE** ~~Populate primary term select box with selected terms via JS (MVP)~~
 - Option – Default to first term selected for each taxonomy
 - Option – Require selection of primary term
 
 ### Data Integrity
-- Unset primary term on post save when if the term no longer exists (MVP)
-- Option – Warn when deleting a term currently used as primary term
+- **DONE** ~~Unset primary term on post save when if the term no longer exists (MVP)~~
+- **DONE** ~~Option – Warn when deleting a term currently used as primary term~~
 
 ## Frontend Use Cases
 - Query for related content based on primary term (MVP)
