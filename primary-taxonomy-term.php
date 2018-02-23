@@ -103,3 +103,17 @@ function ptt_save_post ( $post_id ) {
 		}
 	}
 }
+
+// add a custom class to all primary content in archives
+add_filter ( 'post_class', 'ptt_primary_content_class' );
+function ptt_primary_content_class ( $classes ) {
+	global $post;
+
+	// restrict PTT categories for MVP
+	// @TODO: extend PTT functionality to all taxonomies
+	if( is_archive() && get_queried_object_id() === (integer) get_post_meta( $post->ID, '_ptt-primary-category', true ) ) {
+		$classes[] = 'ptt-primary-content';
+	}
+
+	return $classes;
+}
