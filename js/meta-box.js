@@ -1,4 +1,4 @@
-jQuery( document ).ready( function($) {
+jQuery( document ).ready( function( $ ) {
 	// restrict functionality to categories for MVP
 	// @TODO: extend the JS to work for any taxonomy
 	$( '#categorychecklist li' ).on( 'click', function() {
