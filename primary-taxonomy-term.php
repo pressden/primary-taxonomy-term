@@ -10,11 +10,13 @@ License: GPLv3
 Text Domain: primary-taxonomy-term
 */
 
+// enqueue the ptt admin scripts
 add_action ( 'admin_enqueue_scripts', 'ptt_enqueue_scripts' );
 function ptt_enqueue_scripts () {
 	wp_enqueue_script( 'ptt-meta-box', plugins_url( 'js/meta-box.js', __FILE__ ), array( 'jquery' ), '0.2.0', true );
 }
 
+// add the ptt meta box
 add_action ( 'add_meta_boxes', 'ptt_add_meta_boxes' );
 function ptt_add_meta_boxes() {
 	$screen = get_current_screen();
@@ -26,6 +28,7 @@ function ptt_add_meta_boxes() {
 	}
 }
 
+// ptt meta box callback
 function ptt_meta_box_callback ( $post ) {
 	global $post;
 
@@ -74,6 +77,7 @@ function ptt_meta_box_callback ( $post ) {
 	wp_nonce_field ( 'ptt_primary_terms', 'ptt_primary_terms_nonce' );
 }
 
+// save the values from the ptt meta box
 add_action ( 'save_post', 'ptt_save_post' );
 function ptt_save_post ( $post_id ) {
 	// check the nonce
