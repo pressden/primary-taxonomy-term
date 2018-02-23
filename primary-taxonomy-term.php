@@ -130,13 +130,13 @@ function ptt_sort_primary_term ( $categories ) {
 
 	$primary_term_id = (integer) get_post_meta ( $post->ID, '_ptt-primary-category', true );
 
-	foreach ( $categories as $key => $category) {
+	foreach ( $categories as $key => $category ) {
 		if ( $primary_term_id === $category->term_id ) {
 			$matched_key = $key;
 		}
 	}
 
-	$categories = array( $matched_key => $categories[$matched_key] ) + $categories;
+	$categories = array ( $matched_key => $categories[$matched_key] ) + $categories;
 
 	return $categories;
 }
