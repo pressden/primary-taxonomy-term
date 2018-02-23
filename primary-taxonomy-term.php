@@ -10,6 +10,11 @@ License: GPLv3
 Text Domain: primary-taxonomy-term
 */
 
+add_action ( 'admin_enqueue_scripts', 'ptt_enqueue_scripts' );
+function ptt_enqueue_scripts () {
+	wp_enqueue_script( 'ptt-meta-box', plugins_url( 'js/meta-box.js', __FILE__ ), array( 'jquery' ), '0.2.0', true );
+}
+
 add_action ( 'add_meta_boxes', 'ptt_add_meta_boxes' );
 function ptt_add_meta_boxes() {
 	$screen = get_current_screen();
