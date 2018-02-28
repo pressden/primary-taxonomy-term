@@ -143,6 +143,11 @@ function ptt_sort_primary_term ( $categories ) {
 // @TODO: extend PTT functionality to all taxonomies
 add_filter ( 'the_category', 'ptt_primary_term_class' );
 function ptt_primary_term_class ( $category_list ) {
+	// ensure this filter is only run on single posts
+	if ( ! is_single() ) {
+		return $category_list;
+	}
+	
 	global $post;
 
 	$term_id = (integer) get_post_meta ( $post->ID, '_ptt-primary-category', true );
