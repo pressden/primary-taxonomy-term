@@ -196,3 +196,85 @@ function ptt_primary_term_class ( $category_list ) {
 	// return the updated category list
 	return $list->saveHTML();
 }
+
+/******************************************
+ *
+ * @NOTE: The 'ptt_archive_query' hook is currently disabled and included
+ * for demonstration purposes only. This function manipulates the archive
+ * query to return ONLY posts that match a primary category check.
+ *
+ * Reducing an archive to only display primary content is a restrictive
+ * use case. This hook is only meant to demonstrate an understanding of
+ * the WP_Query object.
+ *
+ ******************************************/
+//add_action ( 'pre_get_posts', 'ptt_archive_query' );
+function ptt_archive_query ( $query ) {
+	// ensure this filter is only run on archives
+	if ( ! is_archive() ) {
+		return $query;
+	}
+
+	// modify the main query
+  if ( $query->is_main_query() ) {
+		// get the queried object id
+		$term_id = get_queried_object_id();
+
+		// define the meta query
+		$meta_query = array (
+			'primary-term-clause' => array (
+				'key' => '_ptt-primary-category',
+				'value' => $term_id,
+			),
+		);
+
+		$query->set ( 'meta_query', $meta_query );
+	}
+
+	return $query;
+}
+
+/******************************************
+ *
+ * @NOTE: The 'ptt_archive_results' hook is currently disabled and included
+ * for demonstration purposes only. This function sorts the posts (after
+ * the query) so that primary content bubbles up to the top of each page.
+ *
+ * This hook is only meant to demonstrate an understanding of the WP_Query
+ * object. This approach has limitied application. For example, when dealing
+ * with a paginated archive, the primary content will be sprinkled across
+ * multiple pages vs. being moved to the first page(s) of the archive.
+ *
+ * A better approach would be to modify the behavior of archive pages in
+ * the theme to treat primary content more like "sticky posts" so they
+ * all most to the front of the archive.
+ *
+ ******************************************/
+//add_action ( 'loop_start', 'ptt_archive_results' );
+function ptt_archive_results ( $query ) {
+	// ensure this filter is only run on archives
+	if ( ! is_archive() ) {
+		return $query;
+	}
+
+	// sort the results (posts) of the main query
+	if ( $query->is_main_query() ) {
+		usort ( $query->posts, function ( $post_a, $post_b ) {
+			$term_id = get_queried_object_id();
+			$a = get_post_meta ( $post_a->ID, '_ptt-primary-category', true );
+			$b = get_post_meta ( $post_b->ID, '_ptt-primary-category', true );
+
+			if ( $term_id == $a && $term_id != $b ) {
+				return -1;
+			}
+			else if ( $term_id == $b && $term_id != $a ) {
+				return 1;
+			}
+			else {
+				return 0;
+			}
+		} );
+	}
+
+	return $query;
+}
